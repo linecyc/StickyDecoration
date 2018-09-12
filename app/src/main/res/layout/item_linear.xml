@@ -5,15 +5,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
     tools:ignore="ContentDescription"
     >
 
 
   <ImageView
       android:id="@+id/imageView"
-      android:layout_width="40dp"
-      android:layout_height="40dp"
+      android:layout_width="24dp"
+      android:layout_height="24dp"
       android:layout_marginLeft="8dp"
       android:layout_marginStart="8dp"
       android:layout_marginTop="8dp"
