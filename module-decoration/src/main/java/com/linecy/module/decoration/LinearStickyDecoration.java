@@ -66,7 +66,7 @@ public class LinearStickyDecoration extends RecyclerView.ItemDecoration {
       RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
       int top = child.getTop() - lp.topMargin;
       int pos = parent.getChildAdapterPosition(child);
-      if (i > 0) {
+      if (i > 0 || !isSticky) {
         //判断起始位置，因为只有每个分组的起始位置才添加头部
         GroupInfo info = startArr.get(pos, null);
         if (null != info) {
@@ -76,17 +76,7 @@ public class LinearStickyDecoration extends RecyclerView.ItemDecoration {
           c.restore();
         }
       } else {
-        if (isSticky) {
-          startCollision(parent, c, child, left, lp.bottomMargin, pos);
-        } else {
-          GroupInfo info = startArr.get(pos, null);
-          if (null != info) {
-            c.save();
-            c.translate(left, top - headerHeight);//移动到预留位置
-            drawHeader(parent, c, info);
-            c.restore();
-          }
-        }
+        startCollision(parent, c, child, left, lp.bottomMargin, pos);
       }
     }
   }
@@ -161,19 +151,15 @@ public class LinearStickyDecoration extends RecyclerView.ItemDecoration {
         break;
       }
     }
-    View currEndView;//当前分组的最后一个view
-    //GroupInfo info = endSArr.get(pos, null);//是否是最后一个节点
-    //分组节点的结束位置是不包含的，所以减1
-    if (end - childPosition == 1 && child.getBottom() <= headerHeight) {
+    View currEndView = parent.getChildAt(end - (childPosition + 1));//当前分组的最后一个view
+    int bottom;
+    //如果出现最后一个view，且最后一个view的底部小于header的高度的话，表明发生碰撞，下一个的header顶出了上一个的header
+    if (null != currEndView
+        && (bottom = currEndView.getBottom()
+        + ((RecyclerView.LayoutParams) currEndView.getLayoutParams()).bottomMargin)
+        <= headerHeight) {//修复item高度小于头部，导致碰撞时没有顶出上一个头部的问题
       c.save();
-      c.translate(left, child.getBottom() - headerHeight);
-      drawHeader(parent, c, groups.get(count));
-      c.restore();
-    } else if (child.getHeight() < headerHeight
-        && null != (currEndView = parent.getChildAt(end - (childPosition + 1)))
-        && currEndView.getBottom() <= headerHeight) {//修复item高度小于头部，导致碰撞时没有顶出上一个头部的问题
-      c.save();
-      c.translate(left, currEndView.getBottom() - headerHeight);
+      c.translate(left, bottom - headerHeight);
       drawHeader(parent, c, groups.get(count));
       c.restore();
     } else {
